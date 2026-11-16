@@ -1,0 +1,6 @@
+# Never commit plaintext secrets or private keys
+*.env
+*.key
+keys.yaml
+__pycache__/
+.venv/
