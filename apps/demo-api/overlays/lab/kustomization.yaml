@@ -15,7 +15,7 @@ patches:
 # To roll back: git revert that commit.
 images:
   - name: ghcr.io/carriel2/gitops-k8s-lab-demo-api
-    newTag: sha-0000000     # replace with the tag from your first CI build
+    newTag: sha-d61043f     # replace with the tag from your first CI build
 
 configMapGenerator:
   - name: demo-api-config
