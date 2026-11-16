@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# The "lab" overlay starts from the base and changes only what is specific to this environment.
+resources:
+  - ../../base
+  - service-lb.yaml        # exposure to the WAF (LoadBalancer restricted to the WAF egress IP)
+
+# Trust X-Forwarded-For only when the connection comes from a cluster node (see the file).
+patches:
+  - path: forwarded-ips.yaml
+
+# VERSION CURRENTLY DEPLOYED. To ship a new version: set the tag to the sha of the image you want
+# (each GitHub Actions build prints it in its summary), commit and push; Argo CD applies it.
+# To roll back: git revert that commit.
+images:
+  - name: ghcr.io/carriel2/gitops-k8s-lab-demo-api
+    newTag: sha-0000000     # replace with the tag from your first CI build
+
+configMapGenerator:
+  - name: demo-api-config
+    behavior: merge
+    literals:
+      - APP_GREETING=Hello from the lab overlay

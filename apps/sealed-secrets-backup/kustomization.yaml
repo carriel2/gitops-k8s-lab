@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: sealed-secrets
+
+resources:
+  - rbac.yaml
+  - cronjob.yaml
+  # - sealed-s3.yaml    # S3 credentials sealed with kubeseal (see README); uncomment after creating it
+
+# The PUBLIC certificate that encrypts the backup (not a secret). You generate it (see README) and commit it here
+# as backup.crt. The matching private key must NEVER enter this repository.
+configMapGenerator:
+  - name: sealed-keys-backup-cert
+    files:
+      - backup.crt=backup.crt

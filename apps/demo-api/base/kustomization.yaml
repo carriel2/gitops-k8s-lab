@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: demo-api
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  # - sealed-demo-api-env.yaml   # optional: uncomment after sealing your own secret (see README)
+
+# Kustomize GENERATES the ConfigMap and appends a hash of its content to the name (e.g. demo-api-config-7b9k2).
+# Content changes -> name changes -> the Deployment points to the new one -> pods are replaced.
+# That is what turns a configuration change into a rollout (a ConfigMap edited in place restarts nothing).
+configMapGenerator:
+  - name: demo-api-config
+    literals:
+      - APP_GREETING=Hello from the GitOps lab

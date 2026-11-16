@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-api-lb
+  labels:
+    app.kubernetes.io/name: demo-api
+    app.kubernetes.io/part-of: gitops-k8s-lab
+spec:
+  # LoadBalancer: the cloud provider (OpenStack Octavia in this lab) creates a load balancer with a public IP.
+  type: LoadBalancer
+  # ONLY THE WAF REACHES THE APP. The provider enforces this list on the load balancer itself: any other source
+  # is refused there, before reaching the cluster. Without it the app would be open to the internet, bypassing the WAF.
+  # 203.0.113.10 is a documentation address (RFC 5737): replace it with your WAF egress IP.
+  loadBalancerSourceRanges:
+    - 203.0.113.10/32
+  selector:
+    app.kubernetes.io/name: demo-api
+  ports:
+    - name: http
+      port: 80               # the WAF speaks HTTP to the origin; TLS terminates at the WAF
+      targetPort: http

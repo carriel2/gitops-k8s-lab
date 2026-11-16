@@ -1,0 +1,25 @@
+# The demo API Application: tells Argo CD to render apps/demo-api/overlays/lab and keep the cluster equal to it.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-api-lab
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/carriel2/gitops-k8s-lab.git
+    targetRevision: HEAD
+    path: apps/demo-api/overlays/lab     # Argo CD detects the kustomization.yaml and renders it
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-api
+  syncPolicy:
+    automated:
+      prune: true        # objects removed from Git are removed from the cluster
+      selfHeal: true     # manual changes in the cluster are reverted to what Git says
+    syncOptions:
+      - CreateNamespace=true
+    # Pod Security "restricted": Kubernetes refuses pods that run as root, privileged, without seccomp etc.
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted

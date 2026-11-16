@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-api
+  labels:
+    app.kubernetes.io/name: demo-api
+    app.kubernetes.io/part-of: gitops-k8s-lab
+spec:
+  # ClusterIP: reachable only from inside the cluster (use kubectl port-forward to test).
+  # Public exposure (LoadBalancer + WAF) is a separate, deliberate step done in the overlay.
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: demo-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http

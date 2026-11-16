@@ -1,0 +1,27 @@
+# Behind the WAF and the cloud load balancer, the pod receives the connection from a cluster NODE (Kubernetes
+# replaces the source with the node IP). The real client IP only exists in the X-Forwarded-For header added by the WAF.
+# For the app to use it (rate limiting, audit logs) it has to TRUST that header, but only when the connection comes
+# from a node. 10.0.0.0/22 is the node subnet of this lab: adjust it to yours. A pod or any other IP is not trusted,
+# so an X-Forwarded-For forged by them is ignored.
+# Requires uvicorn >= 0.31 (accepts CIDR ranges).
+# If the autoscaler creates a node outside this range, its header stops being trusted. That fails safe: the log
+# shows the node IP instead of the client IP.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: api
+          command:
+            - uvicorn
+            - main:app
+            - --host
+            - 0.0.0.0
+            - --port
+            - "8000"
+            - --proxy-headers
+            - --forwarded-allow-ips
+            - 10.0.0.0/22

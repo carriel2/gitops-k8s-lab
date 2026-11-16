@@ -1,0 +1,27 @@
+# Minimal identity for the backup: it can READ Secrets only in this namespace (where the controller keeps its keys).
+# Role, not ClusterRole: the permission is valid only in "sealed-secrets", not cluster-wide.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sealed-keys-backup
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: sealed-keys-backup
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: sealed-keys-backup
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: sealed-keys-backup
+subjects:
+  - kind: ServiceAccount
+    name: sealed-keys-backup
